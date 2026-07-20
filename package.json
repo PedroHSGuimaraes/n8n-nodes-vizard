@@ -1,0 +1,70 @@
+{
+	"name": "n8n-nodes-vizard",
+	"version": "1.0.0",
+	"description": "n8n community node for the Vizard AI API: edit short videos, create clips, retrieve outputs, generate social captions and publish videos.",
+	"keywords": [
+		"n8n-community-node-package",
+		"n8n",
+		"vizard",
+		"vizard ai",
+		"video editing",
+		"video clipping",
+		"subtitles",
+		"social media",
+		"ai-tool"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/PedroHSGuimaraes/n8n-nodes-vizard#readme",
+	"author": {
+		"name": "Pedro Henrique Santos Guimaraes",
+		"email": "pedro.guimaraes02@hotmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/PedroHSGuimaraes/n8n-nodes-vizard.git"
+	},
+	"bugs": {
+		"url": "https://github.com/PedroHSGuimaraes/n8n-nodes-vizard/issues"
+	},
+	"main": "dist/nodes/Vizard/Vizard.node.js",
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"format": "prettier nodes credentials test package.json README.md CHANGELOG.md --write",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"release": "n8n-node release",
+		"test": "npm run build --silent && node --test test/*.test.cjs",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"files": [
+		"dist"
+	],
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	},
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/VizardApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/Vizard/Vizard.node.js"
+		]
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "^0.38.8",
+		"@types/node": "^24.0.0",
+		"eslint": "9.32.0",
+		"n8n-workflow": "^2.16.0",
+		"prettier": "3.6.2",
+		"release-it": "^20.2.1",
+		"typescript": "5.9.2"
+	}
+}

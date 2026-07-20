@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-vizard.vizard",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Marketing", "Productivity"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://docs.vizard.ai/docs/quickstart"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/PedroHSGuimaraes/n8n-nodes-vizard#readme"
+			}
+		]
+	}
+}
