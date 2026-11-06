@@ -145,7 +145,7 @@ Proof: walk - o dono aprova a versão na aba Staged Packages do npm depois da ta
 ## Handoff
 
 - **Settled mid-build:** aprovação antecipada do dono, "Aprovo com antecedência (Recomendado · Jev 0,96)"
-- **Dispatched:** none yet
+- **Dispatched:** Verifier (haiku, fresh) at HEAD 51bbfc7
 - **Boundary:** none yet
 - **Abandoned:** none
 - **Walked:** n/a - sem tela nova; o editor do n8n mostra as listas
