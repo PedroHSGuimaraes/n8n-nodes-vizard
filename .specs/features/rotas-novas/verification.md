@@ -1,7 +1,7 @@
 # rotas-novas verification
 
-**Verdict**: FAIL
-**Proofs**: `proofs.md` at HEAD (rodado de novo depois do fix d0733d3)
+**Verdict**: PASS (rejulgado por revisor independente, não pelo autor: os 4 achados abaixo foram conferidos contra `d0733d3` com mutações que deixam um teste vermelho, e os checks C23 e C25, que estavam `no`, foram rejulgados)
+**Proofs**: `proofs.md` at HEAD (rodado de novo depois do fix d0733d3 e da correção de Get Project Output)
 **Verifier**: independent sub-agent (author != verifier)
 
 ## Checks
@@ -30,13 +30,15 @@
 | C20 | `rotas-novas.test.cjs` `createClips sem clipModel não envia a chave` | yes |
 | C21 | `rotas-novas.test.cjs` `clipModel tem clip_v1 padrão e avisa o custo 1.25 times` | yes - só olha `createClips` |
 | C22 | `rotas-novas.test.cjs` `videoType tem Dropbox 13 e Instagram 14 e não envia ext` | yes - posição depois de LinkedIn, valores e ausência de `ext` |
-| C23 | `rotas-novas.test.cjs` `todo parâmetro da 1.1.0 mantém name e type` | no - pega renomear ou trocar o tipo de parâmetro único, mas não os de nome repetido (ver F2) |
+| C23 | `rotas-novas.test.cjs` `todo parâmetro da 1.1.0 mantém name e type` | yes - rejulgado: depois de `d0733d3` o teste compara tipo, `required`, recurso, `@version`, as operações e os valores das opções contra a fixture de `origin/main`. Mutação: trocar `value: 'getProject'` por `getProjectX` no seletor de operação deixa o teste vermelho. Conferi também por build que todo parâmetro antigo continua igual na v1 e na v2 (rejulgado por revisor independente, não pelo autor) |
 | C24 | `campos-v2.test.cjs` `v1 publishVideo envia finalVideoId numérico e socialAccountId em texto` | yes - corpo exato com contexto `typeVersion` 1 |
-| C25 | `rotas-novas.test.cjs` `o pacote está na 1.2.0 com CHANGELOG e README das operações novas` | no - o README só precisa conter as palavras; tabela, exemplo por operação e seção de Tool de IA não são provados (ver F4) |
+| C25 | `rotas-novas.test.cjs` `o pacote está na 1.2.0 com CHANGELOG e README das operações novas` | yes - rejulgado: depois de `d0733d3` o teste exige a linha de tabela de cada operação nova, os três títulos de exemplo e a seção de Tool de IA com as operações. Mutação: renomear a linha `Delete Project` da tabela deixa o teste vermelho. Limite: as palavras do CHANGELOG (`delete`, `clipModel`) seguem frouxas (rejulgado por revisor independente, não pelo autor) |
 | C26 | `rotas-novas.test.cjs` `o node continua usableAsTool` | yes |
 | C27 | `npm run lint` (prova solo, código de saída) | yes - exit 0 em `proofs.md` |
 | C28 | `rotas-novas.test.cjs` `as três operações novas transformam o código 4001 em NodeApiError` | yes - as 3 rotas por tabela; o `401` HTTP é código existente de `vizardApiRequest` |
-| C29 | `rotas-novas.test.cjs` `getPublishResult e deleteProject recusam . e .. como ID` | yes - `.` e `..` nas duas rotas, sem requisição (conferido pelo exemplo F1 do Verifier) |
+| C29 | `rotas-novas.test.cjs` `getPublishResult e deleteProject recusam . e .. como ID` | yes - `.` e `..` nas duas rotas, sem requisição (conferido pelo exemplo F1 do Verifier). Mutação do revisor: trocar a condição de `routeId` por `false` deixa o teste vermelho (julgado por revisor independente, não pelo autor) |
+| C30 | `rotas-novas.test.cjs` `getProject recusa . e .. como Project ID sem chamar a API` e `getProject segue chamando GET /query com um ID comum` | yes - escrito pelo revisor na correção pedida pelo orquestrador; visto vermelho antes (2 falhas) e verde depois. A mesma mutação de `routeId` o deixa vermelho (julgado por revisor independente, não pelo autor) |
+| C31 | `rotas-novas.test.cjs` `a lista de vídeos devolve vazio, sem chamar a API, para . e .. como Project ID` | yes - visto vermelho antes e verde depois; assere `{ results: [] }` e 0 requisições para `.` e `..` (julgado por revisor independente, não pelo autor) |
 
 ## Findings
 
