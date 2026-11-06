@@ -128,7 +128,7 @@ Proof: run unit | ✔ as três operações novas transformam o código 4001 em N
 ## Handoff
 
 - **Settled mid-build:** none
-- **Dispatched:** none
+- **Dispatched:** Verifier independente (sonnet) em f2168b8, aguardando o relatório
 - **Boundary:** nenhum check fechado ainda
 - **Abandoned:** none
 - **Walked:** none - sem tela com captura; o editor do n8n não é dirigido por este pacote
