@@ -1,0 +1,290 @@
+[
+ {
+  "name": "operation",
+  "type": "options",
+  "show": {
+   "resource": [
+    "videoProject"
+   ]
+  },
+  "required": false,
+  "values": [
+   "editShortVideo",
+   "createClips",
+   "getProject"
+  ]
+ },
+ {
+  "name": "operation",
+  "type": "options",
+  "show": {
+   "resource": [
+    "socialPublishing"
+   ]
+  },
+  "required": false,
+  "values": [
+   "getSocialAccounts",
+   "generateCaption",
+   "publishVideo"
+  ]
+ },
+ {
+  "name": "videoUrl",
+  "type": "string",
+  "show": {
+   "resource": [
+    "videoProject"
+   ],
+   "operation": [
+    "editShortVideo",
+    "createClips"
+   ]
+  },
+  "required": true
+ },
+ {
+  "name": "videoType",
+  "type": "options",
+  "show": {
+   "resource": [
+    "videoProject"
+   ],
+   "operation": [
+    "editShortVideo",
+    "createClips"
+   ]
+  },
+  "required": true
+ },
+ {
+  "name": "ext",
+  "type": "options",
+  "show": {
+   "resource": [
+    "videoProject"
+   ],
+   "operation": [
+    "editShortVideo",
+    "createClips"
+   ],
+   "videoType": [
+    1
+   ]
+  },
+  "required": true
+ },
+ {
+  "name": "lang",
+  "type": "options",
+  "show": {
+   "resource": [
+    "videoProject"
+   ],
+   "operation": [
+    "editShortVideo",
+    "createClips"
+   ]
+  },
+  "required": true
+ },
+ {
+  "name": "preferLength",
+  "type": "multiOptions",
+  "show": {
+   "resource": [
+    "videoProject"
+   ],
+   "operation": [
+    "createClips"
+   ]
+  },
+  "required": true
+ },
+ {
+  "name": "additionalFields",
+  "type": "collection",
+  "show": {
+   "resource": [
+    "videoProject"
+   ],
+   "operation": [
+    "editShortVideo"
+   ]
+  },
+  "required": false
+ },
+ {
+  "name": "additionalFields",
+  "type": "collection",
+  "show": {
+   "resource": [
+    "videoProject"
+   ],
+   "operation": [
+    "createClips"
+   ]
+  },
+  "required": false
+ },
+ {
+  "name": "projectId",
+  "type": "string",
+  "show": {
+   "resource": [
+    "videoProject"
+   ],
+   "operation": [
+    "getProject"
+   ]
+  },
+  "required": true
+ },
+ {
+  "name": "projectId",
+  "type": "string",
+  "show": {
+   "resource": [
+    "socialPublishing"
+   ],
+   "operation": [
+    "generateCaption",
+    "publishVideo"
+   ],
+   "@version": [
+    {
+     "_cnd": {
+      "gte": 2
+     }
+    }
+   ]
+  },
+  "required": true
+ },
+ {
+  "name": "finalVideoId",
+  "type": "resourceLocator",
+  "show": {
+   "resource": [
+    "socialPublishing"
+   ],
+   "operation": [
+    "generateCaption",
+    "publishVideo"
+   ],
+   "@version": [
+    {
+     "_cnd": {
+      "gte": 2
+     }
+    }
+   ]
+  },
+  "required": true
+ },
+ {
+  "name": "finalVideoId",
+  "type": "number",
+  "show": {
+   "resource": [
+    "socialPublishing"
+   ],
+   "operation": [
+    "generateCaption",
+    "publishVideo"
+   ],
+   "@version": [
+    1
+   ]
+  },
+  "required": true
+ },
+ {
+  "name": "aiSocialPlatform",
+  "type": "options",
+  "show": {
+   "resource": [
+    "socialPublishing"
+   ],
+   "operation": [
+    "generateCaption"
+   ]
+  },
+  "required": false
+ },
+ {
+  "name": "tone",
+  "type": "options",
+  "show": {
+   "resource": [
+    "socialPublishing"
+   ],
+   "operation": [
+    "generateCaption"
+   ]
+  },
+  "required": false
+ },
+ {
+  "name": "voice",
+  "type": "options",
+  "show": {
+   "resource": [
+    "socialPublishing"
+   ],
+   "operation": [
+    "generateCaption"
+   ]
+  },
+  "required": false
+ },
+ {
+  "name": "socialAccountId",
+  "type": "resourceLocator",
+  "show": {
+   "resource": [
+    "socialPublishing"
+   ],
+   "operation": [
+    "publishVideo"
+   ],
+   "@version": [
+    {
+     "_cnd": {
+      "gte": 2
+     }
+    }
+   ]
+  },
+  "required": true
+ },
+ {
+  "name": "socialAccountId",
+  "type": "string",
+  "show": {
+   "resource": [
+    "socialPublishing"
+   ],
+   "operation": [
+    "publishVideo"
+   ],
+   "@version": [
+    1
+   ]
+  },
+  "required": true
+ },
+ {
+  "name": "publishingOptions",
+  "type": "collection",
+  "show": {
+   "resource": [
+    "socialPublishing"
+   ],
+   "operation": [
+    "publishVideo"
+   ]
+  },
+  "required": false
+ }
+]

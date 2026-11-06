@@ -14,6 +14,9 @@ const videoSourceOptions: INodePropertyOptions[] = [
 	{ name: 'Loom', value: 10 },
 	{ name: 'Facebook', value: 11 },
 	{ name: 'LinkedIn', value: 12 },
+	// Tipos 13 e 14: a referência "submit" e o guia "docs/basic" da Vizard concordam.
+	{ name: 'Dropbox', value: 13 },
+	{ name: 'Instagram', value: 14 },
 ];
 
 const languageOptions: INodePropertyOptions[] = [
@@ -147,6 +150,22 @@ const createClipFields: INodeProperties[] = [
 		default: 10,
 		description: 'Maximum number of clips to generate, from 1 to 100',
 	},
+	{
+		displayName: 'Clip Model',
+		name: 'clipModel',
+		type: 'options',
+		options: [
+			{ name: 'Model V1', value: 'clip_v1', description: 'Standard processing and billing' },
+			{
+				name: 'Model V2',
+				value: 'clip_v2',
+				description: 'Newer clip model, billed at 1.25 times the Model v1 rate',
+			},
+		],
+		default: 'clip_v1',
+		description:
+			'AI model that analyzes the video and generates clips. Model v2 is charged at 1.25 times the Model v1 rate.',
+	},
 ];
 
 export const resourceOptions: INodePropertyOptions[] = [
@@ -189,6 +208,13 @@ export const actionProperties: INodeProperties[] = [
 				action: 'Get project output',
 				description: 'Retrieve processing status and generated output videos for a project',
 			},
+			{
+				name: 'Delete Project',
+				value: 'deleteProject',
+				action: 'Delete a project',
+				description:
+					'Warning: permanently deletes a Vizard project and its generated videos. Requires the Confirm Delete switch.',
+			},
 		],
 		default: 'editShortVideo',
 	},
@@ -200,16 +226,29 @@ export const actionProperties: INodeProperties[] = [
 		displayOptions: { show: { resource: ['socialPublishing'] } },
 		options: [
 			{
+				name: 'Generate AI Caption',
+				value: 'generateCaption',
+				action: 'Generate an AI social caption',
+				description: 'Generate platform-specific social copy for a video containing speech',
+			},
+			{
 				name: 'Get Connected Accounts',
 				value: 'getSocialAccounts',
 				action: 'Get connected social accounts',
 				description: 'List social accounts connected to the Vizard workspace',
 			},
 			{
-				name: 'Generate AI Caption',
-				value: 'generateCaption',
-				action: 'Generate an AI social caption',
-				description: 'Generate platform-specific social copy for a video containing speech',
+				name: 'Get Publish Result',
+				value: 'getPublishResult',
+				action: 'Get a publish result',
+				description: 'Retrieve the publishing result of a multi-account publish',
+			},
+			{
+				name: 'Publish To Multiple Accounts',
+				value: 'publishToMultipleAccounts',
+				action: 'Publish a video to multiple accounts',
+				description:
+					'Publish one video file to every selected account, now or on a schedule. Confirm the accounts before running.',
 			},
 			{
 				name: 'Publish Video',
@@ -307,7 +346,9 @@ export const actionProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
-		displayOptions: { show: { resource: ['videoProject'], operation: ['getProject'] } },
+		displayOptions: {
+			show: { resource: ['videoProject'], operation: ['getProject', 'deleteProject'] },
+		},
 		description: 'Project ID returned when a video submission is accepted',
 	},
 	// --- Versão 2: o vídeo vem de uma lista do projeto informado em Project ID ---
@@ -514,5 +555,119 @@ export const actionProperties: INodeProperties[] = [
 				description: 'YouTube-only title; leave empty to let Vizard generate it',
 			},
 		],
+	},
+	// --- Delete Project: a confirmação é obrigatória e começa desligada ---
+	{
+		displayName: 'Confirm Delete',
+		name: 'confirmDelete',
+		type: 'boolean',
+		default: false,
+		displayOptions: { show: { resource: ['videoProject'], operation: ['deleteProject'] } },
+		description:
+			'Whether to confirm that the project and its generated videos are permanently deleted. Without it the operation stops before calling the API.',
+	},
+	// --- Publish To Multiple Accounts ---
+	{
+		displayName: 'Social Accounts',
+		name: 'socialAccounts',
+		type: 'fixedCollection',
+		typeOptions: { multipleValues: true },
+		placeholder: 'Add Account',
+		default: {},
+		required: true,
+		displayOptions: {
+			show: { resource: ['socialPublishing'], operation: ['publishToMultipleAccounts'] },
+		},
+		options: [
+			{
+				displayName: 'Accounts',
+				name: 'accounts',
+				values: [
+					{
+						displayName: 'Account',
+						name: 'accountId',
+						type: 'resourceLocator',
+						default: { mode: 'list', value: '' },
+						modes: [
+							{
+								displayName: 'From List',
+								name: 'list',
+								type: 'list',
+								placeholder: 'Select an account...',
+								typeOptions: { searchListMethod: 'searchSocialAccounts', searchable: true },
+							},
+							{
+								displayName: 'By ID',
+								name: 'id',
+								type: 'string',
+								placeholder: 'e.g. 123456',
+							},
+						],
+						description: 'Connected social account that will publish the video',
+					},
+				],
+			},
+		],
+		description: 'Connected accounts that receive the video; each account is added once',
+	},
+	{
+		displayName: 'Video URL',
+		name: 'videoUrl',
+		type: 'string',
+		default: '',
+		required: true,
+		placeholder: 'https://example.com/video.mp4',
+		displayOptions: {
+			show: { resource: ['socialPublishing'], operation: ['publishToMultipleAccounts'] },
+		},
+		description: 'Public URL of a video file that Vizard can download directly',
+	},
+	{
+		displayName: 'Post',
+		name: 'post',
+		type: 'string',
+		typeOptions: { rows: 4 },
+		default: '',
+		required: true,
+		displayOptions: {
+			show: { resource: ['socialPublishing'], operation: ['publishToMultipleAccounts'] },
+		},
+		description: 'Video description used in the social post',
+	},
+	{
+		displayName: 'Publishing Options',
+		name: 'batchPublishingOptions',
+		type: 'collection',
+		placeholder: 'Add Option',
+		default: {},
+		displayOptions: {
+			show: { resource: ['socialPublishing'], operation: ['publishToMultipleAccounts'] },
+		},
+		options: [
+			{
+				displayName: 'Publish Time',
+				name: 'publishTime',
+				type: 'dateTime',
+				default: '',
+				description: 'Future time to publish; omit to publish immediately',
+			},
+			{
+				displayName: 'YouTube Title',
+				name: 'title',
+				type: 'string',
+				default: '',
+				description: 'Title used only for YouTube accounts',
+			},
+		],
+	},
+	// --- Get Publish Result ---
+	{
+		displayName: 'Custom Video ID',
+		name: 'customVideoId',
+		type: 'string',
+		default: '',
+		required: true,
+		displayOptions: { show: { resource: ['socialPublishing'], operation: ['getPublishResult'] } },
+		description: 'Video file ID generated from the Video URL of a multi-account publish',
 	},
 ];

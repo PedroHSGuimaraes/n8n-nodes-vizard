@@ -21,7 +21,10 @@ Node comunitário do [n8n](https://n8n.io/) para a API oficial do **[Vizard AI](
 - **Clipping automático** de vídeos longos, com duração e quantidade configuráveis.
 - **Consulta** de status e dos vídeos gerados.
 - **Copy social** com plataforma, tom e voz configuráveis.
-- **Publicação** imediata ou agendada em contas conectadas.
+- **Publicação** imediata ou agendada em contas conectadas, em uma conta ou em várias de uma vez.
+- **Resultado da publicação** consultado pelo ID do arquivo gerado.
+- **Apagar projeto** só com a confirmação ligada.
+- **Modelo de clipes** `clip_v1` ou `clip_v2` e fontes Dropbox e Instagram.
 - **Lista de vídeos e lista de contas sociais** (versão 2 do node): você escolhe o vídeo do projeto e a conta social por nome, sem copiar IDs. Também dá para colar o ID.
 - **Usável como Tool de IA**: o node expõe `usableAsTool: true`.
 - **Erros claros**: os códigos de erro que a Vizard devolve no corpo JSON viram erros do node.
@@ -58,19 +61,22 @@ O node `Vizard` tem dois recursos.
 
 ### Video Project
 
-| Operação                     | Uso                                                                        |
-| ---------------------------- | -------------------------------------------------------------------------- |
-| Edit Short Video             | Edita vídeo menor que 3 minutos com `getClips: 0` definido automaticamente |
-| Create Clips From Long Video | Gera clipes sociais a partir de vídeo longo                                |
-| Get Project Output           | Consulta processamento e retorna os vídeos gerados pelo `projectId`        |
+| Operação                     | Uso                                                                             |
+| ---------------------------- | ------------------------------------------------------------------------------- |
+| Edit Short Video             | Edita vídeo menor que 3 minutos com `getClips: 0` definido automaticamente      |
+| Create Clips From Long Video | Gera clipes sociais a partir de vídeo longo                                     |
+| Get Project Output           | Consulta processamento e retorna os vídeos gerados pelo `projectId`             |
+| Delete Project               | Apaga o projeto (`DELETE /delete/{projectId}`); exige **Confirm Delete** ligado |
 
 ### Social Publishing
 
-| Operação               | Uso                                                            |
-| ---------------------- | -------------------------------------------------------------- |
-| Get Connected Accounts | Lista contas conectadas e seus IDs                             |
-| Generate AI Caption    | Gera texto social a partir de um `videoId` que contenha fala   |
-| Publish Video          | Publica agora ou agenda um vídeo em uma conta social conectada |
+| Operação                     | Uso                                                                                                                  |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Get Connected Accounts       | Lista contas conectadas e seus IDs                                                                                   |
+| Generate AI Caption          | Gera texto social a partir de um `videoId` que contenha fala                                                         |
+| Publish Video                | Publica agora ou agenda um vídeo em uma conta social conectada                                                       |
+| Publish To Multiple Accounts | Publica um arquivo de vídeo em várias contas de uma vez (`POST /batch-publish-video`)                                |
+| Get Publish Result           | Consulta o resultado de uma publicação em várias contas pelo `customVideoId` (`GET /publish-result/{customVideoId}`) |
 
 ### Escolher o vídeo e a conta (versão 2)
 
@@ -115,6 +121,12 @@ Generate AI Caption (versão 2), campo Project ID:
 
 Publish Video (versão 2), campo Final Video, modo By ID:
 {{ $fromAI('finalVideoId', 'videoId do vídeo gerado, só dígitos', 'string') }}
+
+Publish To Multiple Accounts, campo Post:
+{{ $fromAI('post', 'Texto da publicação, igual para todas as contas', 'string') }}
+
+Get Publish Result, campo Custom Video ID:
+{{ $fromAI('customVideoId', 'ID do arquivo gerado pela publicação em várias contas', 'string') }}
 ```
 
 - Assinatura: `$fromAI(key, description?, type?, defaultValue?)` — `key` de 1–64 caracteres (`[a-zA-Z0-9_-]`); `type` = `string` | `number` | `boolean` | `json`.
@@ -125,7 +137,8 @@ Publish Video (versão 2), campo Final Video, modo By ID:
 ### Boas práticas
 
 - **Restrinja o escopo:** exponha só as operações que o agente precisa (ex.: só _Get Project Output_), em vez de liberar tudo.
-- **Cuidado:** publicar altera sistemas externos. Não exponha **Publish Video** a um agente sem confirmação humana.
+- **Cuidado:** publicar altera sistemas externos. Não exponha **Publish Video** nem **Publish To Multiple Accounts** a um agente sem confirmação humana.
+- **Apagar é irreversível:** **Delete Project** só roda com **Confirm Delete** ligado. Deixe o agente sem essa operação, ou fixe a confirmação só em fluxos revisados.
 - **Credencial dedicada** com permissões mínimas para o agente.
 - **n8n atualizado:** versões antigas tinham um bug em que a tool de community node retornava resposta vazia para o agente ([n8n#26202](https://github.com/n8n-io/n8n/issues/26202)); já corrigido.
 
@@ -163,6 +176,26 @@ A Vizard limita submissões de vídeos longos a 3 por minuto e 20 por hora por p
 4. Exija aprovação humana quando a operação estiver conectada a um AI Agent.
 
 Se **Publish Time** não for informado, a publicação acontece imediatamente.
+
+### Publicar em várias contas
+
+1. Escolha **Social Publishing → Publish To Multiple Accounts**.
+2. Em **Social Accounts**, clique em **Add Account** para cada conta e escolha pela lista ou cole o ID. Contas repetidas entram uma vez só.
+3. Informe a **Video URL** (link que a Vizard consegue baixar direto) e o **Post**.
+4. Em **Publishing Options**, defina o **YouTube Title** e o **Publish Time**, se precisar.
+5. Guarde o `customVideoId` que a resposta devolver e use **Get Publish Result** para ler o resultado.
+
+O node envia as contas como uma lista separada por vírgula no campo `socialAccountIds`. A documentação da Vizard descreve o campo só como texto; se a Vizard recusar o formato, abra uma issue.
+
+### Apagar um projeto
+
+1. Escolha **Video Project → Delete Project** e informe o **Project ID**.
+2. Ligue **Confirm Delete**. Com a chave desligada (o padrão), o node falha antes de enviar qualquer requisição.
+3. Execute. A resposta vazia da Vizard vira `{ "success": true }`.
+
+### Escolher o modelo de clipes
+
+Em **Create Clips From Long Video → Additional Fields → Clip Model**, escolha **Model v1** (padrão) ou **Model v2**. O Model v2 é cobrado a 1,25 vez a tarifa do Model v1.
 
 ## 🛠️ Desenvolvimento
 
@@ -221,6 +254,7 @@ A tag `vX.Y.Z` dispara o workflow `publish.yml`, que envia a versão com `npm st
 
 ## 📈 Versões
 
+- **1.2.0** — **Rotas novas.** Publish To Multiple Accounts, Get Publish Result e Delete Project (com **Confirm Delete**), campo **Clip Model** em Create Clips e as fontes Dropbox e Instagram. Todo parâmetro existente mantém nome e tipo nas versões 1 e 2.
 - **1.1.0** — **Lista de vídeos e de contas sociais.** Em node novo (versão 2 do node), **Final Video** e **Social Account** mostram uma lista pesquisável e aceitam colar o ID; as operações sociais pedem o **Project ID**. Workflows salvos continuam na versão 1 e não mudam. Migração para o `@n8n/node-cli` 0.55.5 com lint oficial sem erros, categoria corrigida para `Marketing & Content`, `n8n-workflow` `^2.46.5` e publicação por `stage`.
 - **1.0.0** — Primeira versão: edição guiada, clipping, consulta de projeto, legendas sociais, contas conectadas e publicação.
 

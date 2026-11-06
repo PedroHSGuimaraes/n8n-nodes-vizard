@@ -51,7 +51,8 @@ export async function searchVideos(
 ): Promise<INodeListSearchResult> {
 	// O Project ID é preenchido antes do vídeo; sem ele a lista não tem de onde vir.
 	const projectId = String(this.getCurrentNodeParameter('projectId') ?? '').trim();
-	if (!projectId) return { results: [] };
+	// "." e ".." não são IDs: o encodeURIComponent não os codifica e o URL sairia de /query/.
+	if (!projectId || projectId === '.' || projectId === '..') return { results: [] };
 
 	// O código 1000 (em processamento) é resposta normal: a lista fica vazia, sem erro.
 	const response = asObject(
