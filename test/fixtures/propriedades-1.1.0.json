@@ -1,0 +1,158 @@
+[
+ {
+  "name": "operation",
+  "type": "options",
+  "show": [
+   "resource"
+  ]
+ },
+ {
+  "name": "operation",
+  "type": "options",
+  "show": [
+   "resource"
+  ]
+ },
+ {
+  "name": "videoUrl",
+  "type": "string",
+  "show": [
+   "resource",
+   "operation"
+  ]
+ },
+ {
+  "name": "videoType",
+  "type": "options",
+  "show": [
+   "resource",
+   "operation"
+  ]
+ },
+ {
+  "name": "ext",
+  "type": "options",
+  "show": [
+   "resource",
+   "operation",
+   "videoType"
+  ]
+ },
+ {
+  "name": "lang",
+  "type": "options",
+  "show": [
+   "resource",
+   "operation"
+  ]
+ },
+ {
+  "name": "preferLength",
+  "type": "multiOptions",
+  "show": [
+   "resource",
+   "operation"
+  ]
+ },
+ {
+  "name": "additionalFields",
+  "type": "collection",
+  "show": [
+   "resource",
+   "operation"
+  ]
+ },
+ {
+  "name": "additionalFields",
+  "type": "collection",
+  "show": [
+   "resource",
+   "operation"
+  ]
+ },
+ {
+  "name": "projectId",
+  "type": "string",
+  "show": [
+   "resource",
+   "operation"
+  ]
+ },
+ {
+  "name": "projectId",
+  "type": "string",
+  "show": [
+   "resource",
+   "operation",
+   "@version"
+  ]
+ },
+ {
+  "name": "finalVideoId",
+  "type": "resourceLocator",
+  "show": [
+   "resource",
+   "operation",
+   "@version"
+  ]
+ },
+ {
+  "name": "finalVideoId",
+  "type": "number",
+  "show": [
+   "resource",
+   "operation",
+   "@version"
+  ]
+ },
+ {
+  "name": "aiSocialPlatform",
+  "type": "options",
+  "show": [
+   "resource",
+   "operation"
+  ]
+ },
+ {
+  "name": "tone",
+  "type": "options",
+  "show": [
+   "resource",
+   "operation"
+  ]
+ },
+ {
+  "name": "voice",
+  "type": "options",
+  "show": [
+   "resource",
+   "operation"
+  ]
+ },
+ {
+  "name": "socialAccountId",
+  "type": "resourceLocator",
+  "show": [
+   "resource",
+   "operation",
+   "@version"
+  ]
+ },
+ {
+  "name": "socialAccountId",
+  "type": "string",
+  "show": [
+   "resource",
+   "operation",
+   "@version"
+  ]
+ },
+ {
+  "name": "publishingOptions",
+  "type": "collection",
+  "show": [
+   "resource",
+   "operation"
+  ]
+ }
+]
