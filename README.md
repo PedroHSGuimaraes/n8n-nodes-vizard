@@ -82,7 +82,7 @@ Se o projeto ainda estiver em processamento, a lista de vídeos fica vazia até 
 
 ## 🤖 Usar como Tool de Agente de IA
 
-O node `Vizard` é **usável como tool** por nós de **AI Agent** do n8n (Tools Agent). Isso deixa o modelo **executar ações no seu Vizard sozinho** — por exemplo: *"edite o vídeo https://exemplo.com/video.mp4 e me devolva o projectId"*.
+O node `Vizard` é **usável como tool** por nós de **AI Agent** do n8n (Tools Agent). Isso deixa o modelo **executar ações no seu Vizard sozinho** — por exemplo: _"edite o vídeo https://exemplo.com/video.mp4 e me devolva o projectId"_.
 
 ### Como ligar (2 passos)
 
@@ -92,11 +92,11 @@ O node `Vizard` é **usável como tool** por nós de **AI Agent** do n8n (Tools 
    N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true
    ```
 
-   | Instalação | Onde definir |
-   | --- | --- |
+   | Instalação                  | Onde definir                                                                                            |
+   | --------------------------- | ------------------------------------------------------------------------------------------------------- |
    | **Docker / docker-compose** | Adicione em `environment:` do serviço n8n (ou no `.env`) e recrie o container (`docker compose up -d`). |
-   | **npm / npx** | Exporte antes de subir: `export N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true && n8n start`. |
-   | **n8n Cloud** | Já habilitado nos planos que suportam community nodes. |
+   | **npm / npx**               | Exporte antes de subir: `export N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true && n8n start`.             |
+   | **n8n Cloud**               | Já habilitado nos planos que suportam community nodes.                                                  |
 
    > Sem essa variável o node **não aparece** na lista de tools do AI Agent — é a causa nº 1 de "não acho o node como tool".
 
@@ -124,7 +124,7 @@ Publish Video (versão 2), campo Final Video, modo By ID:
 
 ### Boas práticas
 
-- **Restrinja o escopo:** exponha só as operações que o agente precisa (ex.: só *Get Project Output*), em vez de liberar tudo.
+- **Restrinja o escopo:** exponha só as operações que o agente precisa (ex.: só _Get Project Output_), em vez de liberar tudo.
 - **Cuidado:** publicar altera sistemas externos. Não exponha **Publish Video** a um agente sem confirmação humana.
 - **Credencial dedicada** com permissões mínimas para o agente.
 - **n8n atualizado:** versões antigas tinham um bug em que a tool de community node retornava resposta vazia para o agente ([n8n#26202](https://github.com/n8n-io/n8n/issues/26202)); já corrigido.
