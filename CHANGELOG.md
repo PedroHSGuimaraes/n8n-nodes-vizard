@@ -7,6 +7,7 @@
 - Add the Delete Project operation (`DELETE /delete/{projectId}`). It fails before any request unless the Confirm Delete switch is on, and the switch starts off.
 - Add the Clip Model field (`clipModel`, `clip_v1` or `clip_v2`) to Create Clips From Long Video. Model v2 is charged at 1.25 times the Model v1 rate.
 - Add Dropbox (13) and Instagram (14) to the Video Source list.
+- Refuse `.` and `..` as Project ID in Get Project Output and in the video list. They are not encoded by the URL builder and made the request leave the `/query/` route. Delete Project and Get Publish Result already refuse them.
 - Keep every existing parameter with the same name and type in versions 1 and 2, so saved workflows keep working.
 
 ## 1.1.0 - 2026-11-06

@@ -4,7 +4,7 @@ Build: `npm run build`; `npx tsc --noEmit`; `npm run lint`
 Run unit: `npm run build --silent && node --test --test-reporter=spec test/*.test.cjs`
 Plan: `.specs/features/rotas-novas/plan.md`
 
-29 checks in 5 slices · 3 one-way doors · 0 open
+31 checks in 5 slices · 3 one-way doors · 0 open
 
 ## Checks
 
@@ -104,6 +104,12 @@ Proof: run unit | ✔ as três operações novas transformam o código 4001 em N
 
 **C29** - `getPublishResult` e `deleteProject` recusam `.` e `..` como ID, sem requisição (achado F1 do Verifier; AC 2 de S2 e AC 2 de S3)
 Proof: run unit | ✔ getPublishResult e deleteProject recusam . e .. como ID
+
+**C30** - `getProject` (Get Project Output) recusa `.` e `..` como Project ID com `Project ID is not valid`, sem requisição, e segue chamando `GET /query/{id}` com um ID comum (mesmo defeito de rota do Delete Project, pedido pelo orquestrador na revisão)
+Proof: run unit | ✔ getProject recusa . e .. como Project ID sem chamar a API
+
+**C31** - A lista de vídeos (`searchVideos`) devolve `{ results: [] }` sem chamar a API quando o Project ID é `.` ou `..` (o `GET /query/..` sairia da rota)
+Proof: run unit | ✔ a lista de vídeos devolve vazio, sem chamar a API, para . e .. como Project ID
 
 ## Coverage
 

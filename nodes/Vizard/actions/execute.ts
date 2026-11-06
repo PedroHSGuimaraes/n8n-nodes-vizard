@@ -131,7 +131,8 @@ export async function executeVideoOperation(
 		});
 	}
 	if (operation === 'getProject') {
-		const projectId = requiredText(this, 'projectId', itemIndex, 'Project ID');
+		// routeId recusa "." e ".." (o mesmo defeito de rota que o Delete Project tinha).
+		const projectId = routeId(this, 'projectId', itemIndex, 'Project ID');
 		return await vizardApiRequest.call(this, 'GET', `/query/${encodeURIComponent(projectId)}`, {
 			allowedCodes: [1000, 2000],
 		});

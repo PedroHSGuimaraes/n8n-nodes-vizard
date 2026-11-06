@@ -228,6 +228,47 @@ describe('IDs que escapam da rota', () => {
 	});
 });
 
+describe('Get Project Output e a lista de vídeos recusam . e .. como ID', () => {
+	it('getProject recusa . e .. como Project ID sem chamar a API', async () => {
+		// Mesmo defeito do deleteProject: o encodeURIComponent deixa "." e ".." passarem e o URL os
+		// resolve para fora de /query/ (GET /query/.. cairia na raiz do projeto).
+		for (const id of ['.', '..']) {
+			const context = executionContext({ projectId: id });
+			await assert.rejects(
+				executeVideoOperation.call(context, 'getProject', 0),
+				/Project ID is not valid/,
+				id,
+			);
+			assert.equal(context.requests.length, 0);
+		}
+	});
+
+	it('getProject segue chamando GET /query com um ID comum', async () => {
+		const context = executionContext({ projectId: '17861706' });
+		await executeVideoOperation.call(context, 'getProject', 0);
+		assert.equal(context.requests[0].url, '/query/17861706');
+	});
+
+	it('a lista de vídeos devolve vazio, sem chamar a API, para . e .. como Project ID', async () => {
+		const { searchVideos } = new Vizard().methods.listSearch;
+		for (const id of ['.', '..']) {
+			const requests = [];
+			const context = {
+				getNode: () => ({ name: 'Vizard', type: 'vizard', typeVersion: 2 }),
+				getCurrentNodeParameter: () => id,
+				helpers: {
+					httpRequestWithAuthentication: async (_credential, options) => {
+						requests.push(options);
+						return { code: 2000, videos: [{ videoId: 1, title: 'x' }] };
+					},
+				},
+			};
+			assert.deepEqual(await searchVideos.call(context), { results: [] }, id);
+			assert.equal(requests.length, 0, id);
+		}
+	});
+});
+
 describe('Apagar projeto', () => {
 	it('deleteProject chama DELETE /delete com confirmação ligada', async () => {
 		const context = executionContext({ projectId: '17861706', confirmDelete: true });
