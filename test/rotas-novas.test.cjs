@@ -206,6 +206,28 @@ describe('Resultado da publicação', () => {
 	});
 });
 
+describe('IDs que escapam da rota', () => {
+	it('getPublishResult e deleteProject recusam . e .. como ID', async () => {
+		// "." e ".." passam pelo encodeURIComponent e o URL os resolve para fora da rota
+		// (DELETE /delete/.. viraria uma chamada à raiz do projeto).
+		for (const id of ['.', '..']) {
+			const result = executionContext({ customVideoId: id });
+			await assert.rejects(
+				executeSocialOperation.call(result, 'getPublishResult', 0),
+				/Custom Video ID is not valid/,
+			);
+			assert.equal(result.requests.length, 0);
+
+			const del = executionContext({ projectId: id, confirmDelete: true });
+			await assert.rejects(
+				executeVideoOperation.call(del, 'deleteProject', 0),
+				/Project ID is not valid/,
+			);
+			assert.equal(del.requests.length, 0);
+		}
+	});
+});
+
 describe('Apagar projeto', () => {
 	it('deleteProject chama DELETE /delete com confirmação ligada', async () => {
 		const context = executionContext({ projectId: '17861706', confirmDelete: true });
@@ -348,16 +370,49 @@ describe('Erros da Vizard nas rotas novas', () => {
 
 describe('Compatibilidade e lançamento 1.2.0', () => {
 	it('todo parâmetro da 1.1.0 mantém name e type', () => {
-		// A fixture foi gerada do dist de origin/main (1.1.0) antes das mudanças.
+		// A fixture foi gerada do build de origin/main (1.1.0) antes das mudanças. Cada entrada
+		// precisa ter um par atual com o mesmo name, type, required, recurso e @version; a lista
+		// de operações (show.operation e opções de "operation") só pode crescer, nunca encolher.
 		const baseline = JSON.parse(
 			fs.readFileSync(path.join(__dirname, 'fixtures', 'propriedades-1.1.0.json'), 'utf8'),
 		);
+		const contains = (atual = [], antigo = []) => antigo.every((valor) => atual.includes(valor));
 		for (const old of baseline) {
-			const stillThere = actionProperties.filter(
-				(property) => property.name === old.name && property.type === old.type,
-			);
-			assert.ok(stillThere.length > 0, `${old.name} (${old.type}) sumiu ou mudou de tipo`);
+			const match = actionProperties.find((property) => {
+				if (property.name !== old.name || property.type !== old.type) return false;
+				if (Boolean(property.required) !== old.required) return false;
+				const show = property.displayOptions?.show ?? {};
+				if (JSON.stringify(show.resource) !== JSON.stringify(old.show.resource)) return false;
+				if (JSON.stringify(show['@version']) !== JSON.stringify(old.show['@version'])) return false;
+				if (!contains(show.operation, old.show.operation)) return false;
+				if (
+					old.values &&
+					!contains(
+						property.options?.map((o) => o.value),
+						old.values,
+					)
+				)
+					return false;
+				return true;
+			});
+			assert.ok(match, `${old.name} (${old.type}) sumiu, mudou de tipo ou perdeu uma condição`);
 		}
+	});
+
+	it('a v1 ganha só os cinco parâmetros das operações novas', () => {
+		// Trava o conjunto de extras: parâmetro novo fora desta lista precisa de decisão explícita.
+		const baseline = JSON.parse(
+			fs.readFileSync(path.join(__dirname, 'fixtures', 'propriedades-1.1.0.json'), 'utf8'),
+		);
+		const antigos = new Set(baseline.map((p) => p.name));
+		const extras = new Set(actionProperties.filter((p) => !antigos.has(p.name)).map((p) => p.name));
+		assert.deepEqual([...extras].sort(), [
+			'batchPublishingOptions',
+			'confirmDelete',
+			'customVideoId',
+			'post',
+			'socialAccounts',
+		]);
 	});
 
 	it('o pacote está na 1.2.0 com CHANGELOG e README das operações novas', () => {
@@ -380,6 +435,22 @@ describe('Compatibilidade e lançamento 1.2.0', () => {
 		]) {
 			assert.match(readme, new RegExp(word));
 		}
+		// Tabela de operações: uma linha de tabela por operação nova.
+		for (const operation of [
+			'Publish To Multiple Accounts',
+			'Get Publish Result',
+			'Delete Project',
+		]) {
+			assert.match(readme, new RegExp(`^\\| ${operation} +\\|`, 'm'));
+		}
+		// Exemplo de cada operação nova e seção de Tool de IA citando as operações.
+		assert.match(readme, /### Publicar em várias contas/);
+		assert.match(readme, /### Apagar um projeto/);
+		assert.match(readme, /### Escolher o modelo de clipes/);
+		const tool = readme.split('## 🤖 Usar como Tool de Agente de IA')[1].split('## 🧪 Exemplos')[0];
+		assert.match(tool, /Publish To Multiple Accounts/);
+		assert.match(tool, /Get Publish Result/);
+		assert.match(tool, /Delete Project/);
 	});
 
 	it('o node continua usableAsTool', () => {

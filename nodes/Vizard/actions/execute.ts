@@ -28,6 +28,21 @@ function requiredText(
 	throw new NodeOperationError(context.getNode(), `${displayName} is required`, { itemIndex });
 }
 
+// Recusa "." e "..": o encodeURIComponent não os codifica e o URL os resolve para fora da rota
+// (DELETE /delete/.. cairia na raiz do projeto). Vale para os IDs das rotas novas.
+function routeId(
+	context: IExecuteFunctions,
+	name: string,
+	itemIndex: number,
+	displayName: string,
+): string {
+	const value = requiredText(context, name, itemIndex, displayName);
+	if (value === '.' || value === '..') {
+		throw new NodeOperationError(context.getNode(), `${displayName} is not valid`, { itemIndex });
+	}
+	return value;
+}
+
 function videoUrl(context: IExecuteFunctions, itemIndex: number): string {
 	const value = requiredText(context, 'videoUrl', itemIndex, 'Video URL');
 	try {
@@ -131,7 +146,7 @@ export async function executeVideoOperation(
 				{ itemIndex },
 			);
 		}
-		const projectId = requiredText(this, 'projectId', itemIndex, 'Project ID');
+		const projectId = routeId(this, 'projectId', itemIndex, 'Project ID');
 		return await vizardApiRequest.call(this, 'DELETE', `/delete/${encodeURIComponent(projectId)}`, {
 			timeout: VIZARD_ROUTE_TIMEOUT_MS,
 		});
@@ -215,7 +230,7 @@ export async function executeSocialOperation(
 		return await publishToMultipleAccounts(this, itemIndex);
 	}
 	if (operation === 'getPublishResult') {
-		const customVideoId = requiredText(this, 'customVideoId', itemIndex, 'Custom Video ID');
+		const customVideoId = routeId(this, 'customVideoId', itemIndex, 'Custom Video ID');
 		return await vizardApiRequest.call(
 			this,
 			'GET',
