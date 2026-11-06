@@ -3,9 +3,18 @@ import type {
 	IExecuteFunctions,
 	IHttpRequestMethods,
 	IHttpRequestOptions,
+	ILoadOptionsFunctions,
 	JsonObject,
 } from 'n8n-workflow';
 import { NodeApiError } from 'n8n-workflow';
+
+// A mesma chamada serve a execução do node e às listas do editor (listSearch),
+// que recebem outro tipo de contexto; os dois têm getNode e a chamada autenticada.
+type VizardContext = IExecuteFunctions | ILoadOptionsFunctions;
+
+// Limite de espera das listas do editor: elas rodam enquanto a pessoa digita, então
+// 30 s bastam e evitam travar a tela (as submissões de vídeo seguem em 180 s).
+export const VIZARD_LIST_TIMEOUT_MS = 30000;
 
 export const VIZARD_API_BASE_URL =
 	'https://elb-api.vizard.ai/hvizard-server-front/open-api/v1/project';
@@ -28,6 +37,8 @@ const errorDescriptions: Record<number, string> = {
 interface VizardRequestOptions {
 	body?: IDataObject;
 	allowedCodes?: number[];
+	// Espera máxima em milissegundos; sem valor, vale o padrão de 180000 da submissão.
+	timeout?: number;
 }
 
 function responseCode(response: unknown): number | undefined {
@@ -46,7 +57,7 @@ function responseErrorMessage(response: unknown, code: number): string {
 }
 
 export function assertVizardResponse(
-	context: IExecuteFunctions,
+	context: VizardContext,
 	response: unknown,
 	allowedCodes: number[] = [2000],
 ): void {
@@ -62,7 +73,7 @@ export function assertVizardResponse(
 }
 
 export async function vizardApiRequest(
-	this: IExecuteFunctions,
+	this: VizardContext,
 	method: IHttpRequestMethods,
 	endpoint: string,
 	request: VizardRequestOptions = {},
@@ -72,7 +83,7 @@ export async function vizardApiRequest(
 		baseURL: VIZARD_API_BASE_URL,
 		url: endpoint.startsWith('/') ? endpoint : `/${endpoint}`,
 		json: true,
-		timeout: 180000,
+		timeout: request.timeout ?? 180000,
 	};
 	if (request.body && Object.keys(request.body).length) options.body = request.body;
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0 - 2026-11-06
+
+- Add a video list and a social account list in version 2 of the node: Final Video and Social Account become searchable Resource Locators, with a By ID mode. The social operations ask for the Project ID that feeds the video list.
+- Keep version 1 of the node unchanged, so saved workflows keep working; new nodes start in version 2.
+- Move to @n8n/node-cli 0.55.5, fix the node category to Marketing & Content, raise n8n-workflow to ^2.46.5 and add the funding link.
+- Publish through `npm stage publish` with provenance, approved by the owner in the npm Staged Packages tab.
+
 ## 1.0.0 - 2026-07-20
 
 - Add guided short-video editing with subtitles, headlines, B-roll, emojis, templates, and silence removal.
