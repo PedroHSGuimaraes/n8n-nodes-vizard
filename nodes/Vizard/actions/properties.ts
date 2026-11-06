@@ -155,16 +155,16 @@ const createClipFields: INodeProperties[] = [
 		name: 'clipModel',
 		type: 'options',
 		options: [
-			{ name: 'Model v1', value: 'clip_v1', description: 'Standard processing and billing' },
+			{ name: 'Model V1', value: 'clip_v1', description: 'Standard processing and billing' },
 			{
-				name: 'Model v2',
+				name: 'Model V2',
 				value: 'clip_v2',
 				description: 'Newer clip model, billed at 1.25 times the Model v1 rate',
 			},
 		],
 		default: 'clip_v1',
 		description:
-			'AI model that analyzes the video and generates clips. Model v2 is charged at 1.25 times the Model v1 rate',
+			'AI model that analyzes the video and generates clips. Model v2 is charged at 1.25 times the Model v1 rate.',
 	},
 ];
 
@@ -213,7 +213,7 @@ export const actionProperties: INodeProperties[] = [
 				value: 'deleteProject',
 				action: 'Delete a project',
 				description:
-					'Warning: permanently deletes a Vizard project and its generated videos. Requires the Confirm Delete switch',
+					'Warning: permanently deletes a Vizard project and its generated videos. Requires the Confirm Delete switch.',
 			},
 		],
 		default: 'editShortVideo',
@@ -226,35 +226,35 @@ export const actionProperties: INodeProperties[] = [
 		displayOptions: { show: { resource: ['socialPublishing'] } },
 		options: [
 			{
-				name: 'Get Connected Accounts',
-				value: 'getSocialAccounts',
-				action: 'Get connected social accounts',
-				description: 'List social accounts connected to the Vizard workspace',
-			},
-			{
 				name: 'Generate AI Caption',
 				value: 'generateCaption',
 				action: 'Generate an AI social caption',
 				description: 'Generate platform-specific social copy for a video containing speech',
 			},
 			{
-				name: 'Publish Video',
-				value: 'publishVideo',
-				action: 'Publish a generated video',
-				description: 'Publish now or schedule publication to a connected social account',
-			},
-			{
-				name: 'Publish To Multiple Accounts',
-				value: 'publishToMultipleAccounts',
-				action: 'Publish a video to multiple accounts',
-				description:
-					'Publish one video file to every selected account, now or on a schedule. Confirm the accounts before running',
+				name: 'Get Connected Accounts',
+				value: 'getSocialAccounts',
+				action: 'Get connected social accounts',
+				description: 'List social accounts connected to the Vizard workspace',
 			},
 			{
 				name: 'Get Publish Result',
 				value: 'getPublishResult',
 				action: 'Get a publish result',
 				description: 'Retrieve the publishing result of a multi-account publish',
+			},
+			{
+				name: 'Publish To Multiple Accounts',
+				value: 'publishToMultipleAccounts',
+				action: 'Publish a video to multiple accounts',
+				description:
+					'Publish one video file to every selected account, now or on a schedule. Confirm the accounts before running.',
+			},
+			{
+				name: 'Publish Video',
+				value: 'publishVideo',
+				action: 'Publish a generated video',
+				description: 'Publish now or schedule publication to a connected social account',
 			},
 		],
 		default: 'getSocialAccounts',
@@ -564,7 +564,7 @@ export const actionProperties: INodeProperties[] = [
 		default: false,
 		displayOptions: { show: { resource: ['videoProject'], operation: ['deleteProject'] } },
 		description:
-			'Warning: this permanently deletes the project and its generated videos. Turn on to confirm; the node fails before any request while this is off',
+			'Whether to confirm that the project and its generated videos are permanently deleted. Without it the operation stops before calling the API.',
 	},
 	// --- Publish To Multiple Accounts ---
 	{

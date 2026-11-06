@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0 - 2026-11-06
+
+- Add the Publish To Multiple Accounts operation (`POST /batch-publish-video`): pick several connected accounts with the account list or by ID, and publish one video file to all of them. Optional YouTube title and schedule time.
+- Add the Get Publish Result operation (`GET /publish-result/{customVideoId}`) to read the result of a multi-account publish.
+- Add the Delete Project operation (`DELETE /delete/{projectId}`). It fails before any request unless the Confirm Delete switch is on, and the switch starts off.
+- Add the Clip Model field (`clipModel`, `clip_v1` or `clip_v2`) to Create Clips From Long Video. Model v2 is charged at 1.25 times the Model v1 rate.
+- Add Dropbox (13) and Instagram (14) to the Video Source list.
+- Keep every existing parameter with the same name and type in versions 1 and 2, so saved workflows keep working.
+
 ## 1.1.0 - 2026-11-06
 
 - Add a video list and a social account list in version 2 of the node: Final Video and Social Account become searchable Resource Locators, with a By ID mode. The social operations ask for the Project ID that feeds the video list.

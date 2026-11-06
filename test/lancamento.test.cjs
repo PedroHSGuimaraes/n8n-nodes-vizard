@@ -14,8 +14,9 @@ const raiz = path.join(__dirname, '..');
 const ler = (...partes) => fs.readFileSync(path.join(raiz, ...partes), 'utf8');
 const pacote = JSON.parse(ler('package.json'));
 describe('Lançamento 1.1.0 com estágio no npm', () => {
-	it('o package.json está na 1.1.0 e traz o funding do dono', () => {
-		assert.equal(pacote.version, '1.1.0');
+	it('o package.json está na 1.1.0 ou mais nova e traz o funding do dono', () => {
+		// A versão sobe a cada lançamento (1.2.0 prova o seu próprio número em rotas-novas.test.cjs).
+		assert.match(pacote.version, /^1\.(?:[1-9]\d*)\.\d+$/);
 		assert.deepEqual(pacote.funding, {
 			type: 'individual',
 			url: 'https://buymeacoffee.com/qTny0AzFXS',

@@ -254,11 +254,12 @@ describe('Apagar projeto', () => {
 		assert.equal(context.requests.length, 0);
 	});
 
-	it('confirmDelete é boolean desligado e as descrições começam com Warning:', () => {
+	it('confirmDelete é boolean desligado e a operação avisa com Warning:', () => {
 		const confirm = findProperty('confirmDelete');
 		assert.equal(confirm.type, 'boolean');
 		assert.equal(confirm.default, false);
-		assert.match(confirm.description, /^Warning:/);
+		// A regra do lint do n8n obriga o campo booleano a começar com "Whether"; o aviso fica na operação.
+		assert.match(confirm.description, /^Whether/);
 
 		const operation = actionProperties
 			.find((p) => p.name === 'operation' && p.displayOptions.show.resource[0] === 'videoProject')

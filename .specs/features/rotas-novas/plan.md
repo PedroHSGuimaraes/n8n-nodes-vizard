@@ -104,7 +104,7 @@ Apagar é destrutivo: sem a confirmação ligada, nada sai do node.
    - resposta vazia do `Vizard.execute` → item `{ "success": true }`
 2. IF `confirmDelete` está desligado THEN o sistema SHALL lançar `NodeOperationError` com a mensagem `Confirm Delete must be enabled to delete a project` sem fazer requisição
    - ausente → mesmo erro; ligado com `projectId` vazio → `Project ID is required`
-3. The campo `confirmDelete` SHALL ser `boolean` com padrão `false`, e a descrição dele e a descrição da operação SHALL começar com `Warning:`
+3. The campo `confirmDelete` SHALL ser `boolean` com padrão `false` e descrição iniciada em `Whether` (regra do lint do n8n), e a descrição da operação `deleteProject` SHALL começar com `Warning:` (mesmo padrão do `Confirm Restart` do pacote RD Station Conversas)
 4. The campo `projectId` de `deleteProject` SHALL ser texto obrigatório, porque a doc não tem rota que liste projetos
 
 ### S4: clipModel e fontes Dropbox e Instagram (P2)

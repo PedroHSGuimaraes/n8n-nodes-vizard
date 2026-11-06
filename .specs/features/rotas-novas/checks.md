@@ -62,8 +62,8 @@ Proof: run unit | ✔ deleteProject sem confirmação falha antes de qualquer re
 **C16** - Com confirmação e `projectId` vazio lança `Project ID is required` (AC 2)
 Proof: run unit | ✔ deleteProject com projectId vazio falha com Project ID is required
 
-**C17** - `confirmDelete` é `boolean` padrão `false` e as descrições começam com `Warning:` (AC 3)
-Proof: run unit | ✔ confirmDelete é boolean desligado e as descrições começam com Warning:
+**C17** - `confirmDelete` é `boolean` padrão `false` com descrição em `Whether`, e a operação começa com `Warning:` (AC 3)
+Proof: run unit | ✔ confirmDelete é boolean desligado e a operação avisa com Warning:
 
 **C18** - `projectId` de `deleteProject` é texto obrigatório (AC 4)
 Proof: run unit | ✔ projectId de deleteProject é texto obrigatório
