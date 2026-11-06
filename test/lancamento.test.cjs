@@ -69,6 +69,11 @@ describe('Lançamento 1.1.0 com estágio no npm', () => {
 		]) {
 			assert.ok(new RegExp(`^## .*${secao}`, 'm').test(readme), `README sem a seção ${secao}`);
 		}
+		// A seção de Tool de IA traz a variável que liga a tool, o `$fromAI` com campo real do node
+		// e as boas práticas do modelo do RD CRM (achado F1 da revisão).
+		assert.match(readme, /N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true/);
+		assert.match(readme, /\$fromAI\(/);
+		assert.match(readme, /^### Boas práticas/m);
 		// O README descreve as duas listas novas da versão 2.
 		assert.match(readme, /lista de v[ií]deos/i);
 		assert.match(readme, /conta social/i);

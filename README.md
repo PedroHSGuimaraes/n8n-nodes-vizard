@@ -82,15 +82,58 @@ Se o projeto ainda estiver em processamento, a lista de vídeos fica vazia até 
 
 ## 🤖 Usar como Tool de Agente de IA
 
-Em instalações self-hosted, habilite nodes comunitários como tools:
+O node `Vizard` é **usável como tool** por nós de **AI Agent** do n8n (Tools Agent). Isso deixa o modelo **executar ações no seu Vizard sozinho** — por exemplo: *"edite o vídeo https://exemplo.com/video.mp4 e me devolva o projectId"*.
 
-```bash
-N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true
+### Como ligar (2 passos)
+
+1. **No servidor n8n**, habilite o uso de community nodes como tools (por segurança, vem **desligado por padrão**). Defina a variável de ambiente:
+
+   ```bash
+   N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true
+   ```
+
+   | Instalação | Onde definir |
+   | --- | --- |
+   | **Docker / docker-compose** | Adicione em `environment:` do serviço n8n (ou no `.env`) e recrie o container (`docker compose up -d`). |
+   | **npm / npx** | Exporte antes de subir: `export N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true && n8n start`. |
+   | **n8n Cloud** | Já habilitado nos planos que suportam community nodes. |
+
+   > Sem essa variável o node **não aparece** na lista de tools do AI Agent — é a causa nº 1 de "não acho o node como tool".
+
+2. **No workflow**, adicione um node **AI Agent**, conecte um **Chat Model** e, no conector **Tool**, adicione o **Vizard**. Escolha o **Recurso** e a **Operação** que o agente pode usar (ex.: Video Project → Edit Short Video). Uma tool por operação é a prática recomendada, com nomes estreitos como `Vizard_Edit_Short_Video` ou `Vizard_Get_Project`.
+
+### Deixe o modelo preencher os campos (`$fromAI`)
+
+Em cada campo do node em modo tool aparece o botão **"Let the model define this"**, que usa a expressão. Exemplos neste pacote:
+
+```
+Edit Short Video, campo Video URL:
+{{ $fromAI('videoUrl', 'URL pública do vídeo a editar, com menos de 3 minutos', 'string') }}
+
+Generate AI Caption (versão 2), campo Project ID:
+{{ $fromAI('projectId', 'ID do projeto devolvido quando o vídeo foi enviado', 'string') }}
+
+Publish Video (versão 2), campo Final Video, modo By ID:
+{{ $fromAI('finalVideoId', 'videoId do vídeo gerado, só dígitos', 'string') }}
 ```
 
-Use uma operação por tool e nomes estreitos, por exemplo `Vizard_Edit_Short_Video` ou `Vizard_Get_Project`. O modo **By ID** dos campos **Final Video** e **Social Account** recebe os valores que o agente preenche com `$fromAI()`.
+- Assinatura: `$fromAI(key, description?, type?, defaultValue?)` — `key` de 1–64 caracteres (`[a-zA-Z0-9_-]`); `type` = `string` | `number` | `boolean` | `json`.
+- Os campos **Final Video** e **Social Account** têm dois modos. O agente preenche o modo **By ID**; a lista do editor serve a quem monta o workflow à mão.
+- Você pode **misturar**: fixar alguns campos (ex.: sempre a mesma conta social) e deixar o modelo preencher outros.
+- Quanto mais específico o seu prompt ou a System Message do agente, melhor o resultado.
 
-**Cuidado:** publicar altera sistemas externos. Não exponha **Publish Video** a um agente sem confirmação humana.
+### Boas práticas
+
+- **Restrinja o escopo:** exponha só as operações que o agente precisa (ex.: só *Get Project Output*), em vez de liberar tudo.
+- **Cuidado:** publicar altera sistemas externos. Não exponha **Publish Video** a um agente sem confirmação humana.
+- **Credencial dedicada** com permissões mínimas para o agente.
+- **n8n atualizado:** versões antigas tinham um bug em que a tool de community node retornava resposta vazia para o agente ([n8n#26202](https://github.com/n8n-io/n8n/issues/26202)); já corrigido.
+
+### Referências
+
+- [Tools Agent — n8n Docs](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.agent/tools-agent)
+- [Let AI specify tool parameters (`$fromAI`) — n8n Docs](https://docs.n8n.io/advanced-ai/examples/using-the-fromai-function/)
+- [Variáveis de ambiente de nodes — n8n Docs](https://docs.n8n.io/hosting/configuration/environment-variables/nodes/)
 
 ## 🧪 Exemplos
 
