@@ -4,7 +4,7 @@ Build: `npm run build`; `npx tsc --noEmit`; `npm run lint`
 Run unit: `npm run build --silent && node --test --test-reporter=spec test/*.test.cjs`
 Plan: `.specs/features/rotas-novas/plan.md`
 
-28 checks in 5 slices · 3 one-way doors · 0 open
+29 checks in 5 slices · 3 one-way doors · 0 open
 
 ## Checks
 
@@ -102,6 +102,9 @@ Proof: `npm run lint`
 **C28** - As três rotas novas transformam a resposta `4001` em `NodeApiError` com a descrição `Invalid API key.` (AC 1 de S1, S2 e S3)
 Proof: run unit | ✔ as três operações novas transformam o código 4001 em NodeApiError
 
+**C29** - `getPublishResult` e `deleteProject` recusam `.` e `..` como ID, sem requisição (achado F1 do Verifier; AC 2 de S2 e AC 2 de S3)
+Proof: run unit | ✔ getPublishResult e deleteProject recusam . e .. como ID
+
 ## Coverage
 
 | Set (size) | Member -> proof | Unproven |
@@ -128,7 +131,7 @@ Proof: run unit | ✔ as três operações novas transformam o código 4001 em N
 ## Handoff
 
 - **Settled mid-build:** none
-- **Dispatched:** Verifier independente (sonnet) em f2168b8, aguardando o relatório
+- **Dispatched:** Verifier independente (sonnet) em f2168b8, returned: 4 achados fechados em d0733d3
 - **Boundary:** nenhum check fechado ainda
 - **Abandoned:** none
 - **Walked:** none - sem tela com captura; o editor do n8n não é dirigido por este pacote
