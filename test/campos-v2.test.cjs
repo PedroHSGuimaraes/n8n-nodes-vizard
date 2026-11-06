@@ -98,7 +98,9 @@ describe('Versão 1 continua igual à 1.0.0', () => {
 	});
 
 	it('v1 expõe todo parâmetro da 1.0.0 com o mesmo name e type', () => {
-		const naV1 = [...new Set(propriedades.filter(visivelNaVersao1).map((p) => `${p.name}:${p.type}`))];
+		const naV1 = [
+			...new Set(propriedades.filter(visivelNaVersao1).map((p) => `${p.name}:${p.type}`)),
+		];
 		assert.deepEqual(naV1.sort(), parametrosDaVersao1);
 	});
 
@@ -193,7 +195,9 @@ describe('Versão 2: listas do editor', () => {
 			code: 2000,
 			videos: [{ videoId: 9, videoMsDuration: 3000 }],
 		}));
-		assert.deepEqual((await searchVideos.call(ctx)).results, [{ name: 'Video 9 (3 s)', value: '9' }]);
+		assert.deepEqual((await searchVideos.call(ctx)).results, [
+			{ name: 'Video 9 (3 s)', value: '9' },
+		]);
 	});
 
 	it('searchVideos devolve vazio, sem erro, com o projeto em processamento (código 1000)', async () => {
@@ -290,16 +294,21 @@ describe('Versão 2: execução lê o Resource Locator', () => {
 
 	it('valor de expressão em texto puro também é aceito no finalVideoId', async () => {
 		let requisicao;
-		const ctx = contextoExecucao({ finalVideoId: '14015572', aiSocialPlatform: 1, tone: 0, voice: 0 }, (o) => {
-			requisicao = o;
-			return { code: 2000 };
-		});
+		const ctx = contextoExecucao(
+			{ finalVideoId: '14015572', aiSocialPlatform: 1, tone: 0, voice: 0 },
+			(o) => {
+				requisicao = o;
+				return { code: 2000 };
+			},
+		);
 		await executeSocialOperation.call(ctx, 'generateCaption', 0);
 		assert.strictEqual(requisicao.body.finalVideoId, 14015572);
 	});
 
 	it('finalVideoId "abc" lança a mensagem de inteiro positivo', async () => {
-		const ctx = contextoExecucao({ finalVideoId: { mode: 'id', value: 'abc' } }, () => ({ code: 2000 }));
+		const ctx = contextoExecucao({ finalVideoId: { mode: 'id', value: 'abc' } }, () => ({
+			code: 2000,
+		}));
 		await assert.rejects(
 			executeSocialOperation.call(ctx, 'generateCaption', 0),
 			/Final Video ID must be a positive integer/,
