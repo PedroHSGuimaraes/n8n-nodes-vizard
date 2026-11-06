@@ -1,6 +1,7 @@
 import type { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 
+import { getIdParameter } from '../helpers/resourceLocator';
 import { vizardApiRequest } from '../transport';
 
 const switchFields = [
@@ -139,7 +140,9 @@ export async function executeSocialOperation(
 		return await vizardApiRequest.call(this, 'GET', '/social-accounts');
 	}
 
-	const finalVideoId = this.getNodeParameter('finalVideoId', itemIndex) as number;
+	// Na v1 o ID é número; na v2 vem do Resource Locator. A leitura única devolve texto,
+	// e Number() de texto vazio ou inválido cai na checagem de inteiro positivo abaixo.
+	const finalVideoId = Number(getIdParameter(this, 'finalVideoId', itemIndex));
 	if (!Number.isSafeInteger(finalVideoId) || finalVideoId < 1) {
 		throw new NodeOperationError(this.getNode(), 'Final Video ID must be a positive integer', {
 			itemIndex,
@@ -158,10 +161,14 @@ export async function executeSocialOperation(
 	}
 
 	if (operation === 'publishVideo') {
-		const body: IDataObject = {
-			finalVideoId,
-			socialAccountId: requiredText(this, 'socialAccountId', itemIndex, 'Social Account ID'),
-		};
+		// A conta também pode ser texto (v1) ou Resource Locator (v2); vazio é erro nas duas.
+		const socialAccountId = getIdParameter(this, 'socialAccountId', itemIndex);
+		if (!socialAccountId) {
+			throw new NodeOperationError(this.getNode(), 'Social Account ID is required', {
+				itemIndex,
+			});
+		}
+		const body: IDataObject = { finalVideoId, socialAccountId };
 		const options = this.getNodeParameter('publishingOptions', itemIndex, {}) as IDataObject;
 		for (const name of ['post', 'title']) {
 			if (hasOwn(options, name)) body[name] = options[name];

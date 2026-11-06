@@ -10,6 +10,7 @@ import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workf
 import { executeSocialOperation, executeVideoOperation } from './actions/execute';
 import { actionProperties, resourceOptions } from './actions/properties';
 import { vizardApiCredentialTest } from './methods/credentialTest';
+import { searchSocialAccounts, searchVideos } from './methods/listSearch';
 
 function toDataObject(value: unknown): IDataObject {
 	if (value === undefined || value === null || value === '') return { success: true };
@@ -25,7 +26,10 @@ export class Vizard implements INodeType {
 		name: 'vizard',
 		icon: { light: 'file:vizard.svg', dark: 'file:vizard.dark.svg' },
 		group: ['transform'],
-		version: 1,
+		// Versão 2 troca finalVideoId e socialAccountId por Resource Locator; a 1 fica como estava
+		// para workflows salvos não quebrarem. Node novo nasce na 2.
+		version: [1, 2],
+		defaultVersion: 2,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description:
 			'Edit short videos, create clips, retrieve outputs, generate social captions, and publish videos with Vizard AI. Use one operation per AI tool. Confirm destination and content before allowing an AI agent to publish externally.',
@@ -54,7 +58,11 @@ export class Vizard implements INodeType {
 		],
 	};
 
-	methods = { credentialTest: { vizardApiCredentialTest } };
+	methods = {
+		credentialTest: { vizardApiCredentialTest },
+		// Listas do Resource Locator da versão 2 (modo "From List").
+		listSearch: { searchVideos, searchSocialAccounts },
+	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
