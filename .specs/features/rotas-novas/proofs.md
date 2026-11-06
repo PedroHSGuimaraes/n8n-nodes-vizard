@@ -1,9 +1,9 @@
 # rotas-novas proofs
 
-**HEAD**: de42eae
+**HEAD**: e5f0650
 **Tree**: clean
 **Shell**: /bin/sh
-**Result**: 31 pass, 0 fail
+**Result**: 32 pass, 0 fail
 
 | Check | Proof | Result |
 | --- | --- | --- |
@@ -35,6 +35,7 @@
 | C26 | `run unit / ✔ o node continua usableAsTool` | pass |
 | C27 | `npm run lint` | pass |
 | C28 | `run unit / ✔ as três operações novas transformam o código 4001 em NodeApiError` | pass |
+| C29 | `run unit / ✔ getPublishResult e deleteProject recusam . e .. como ID` | pass |
 | Build | `npm run build` | pass |
 | Build | `npx tsc --noEmit` | pass |
 | Build | `npm run lint` | pass |
@@ -45,20 +46,20 @@
 
 ```
 ▶ Vizard social operations
-  ✔ converts scheduled publishing dates to Unix milliseconds (0.30744ms)
-✔ Vizard social operations (0.398049ms)
+  ✔ converts scheduled publishing dates to Unix milliseconds (0.61159ms)
+✔ Vizard social operations (0.799935ms)
 ▶ Vizard node definition
-  ✔ defaults to short-video editing and can be used as an AI tool (0.260888ms)
-  ✔ keeps the API key in a password credential and the required Vizard header (0.186846ms)
-✔ Vizard node definition (0.644441ms)
-ℹ tests 72
-ℹ suites 17
-ℹ pass 72
+  ✔ defaults to short-video editing and can be used as an AI tool (0.476317ms)
+  ✔ keeps the API key in a password credential and the required Vizard header (0.332969ms)
+✔ Vizard node definition (1.133234ms)
+ℹ tests 74
+ℹ suites 18
+ℹ pass 74
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 496.272893
+ℹ duration_ms 650.12032
 ```
 
 `npm run lint` - exit 0
