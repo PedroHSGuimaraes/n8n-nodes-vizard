@@ -142,7 +142,10 @@ export async function executeSocialOperation(
 
 	// Na v1 o ID é número; na v2 vem do Resource Locator. A leitura única devolve texto,
 	// e Number() de texto vazio ou inválido cai na checagem de inteiro positivo abaixo.
-	const finalVideoId = Number(getIdParameter(this, 'finalVideoId', itemIndex));
+	// Só dígitos valem: sem esta regex, "0x1F" e "1e3" passariam pelo Number() e iriam à API
+	// como 31 e 1000 (achado F2 do Verifier). Qualquer outra forma vira NaN e cai na checagem abaixo.
+	const rawVideoId = getIdParameter(this, 'finalVideoId', itemIndex);
+	const finalVideoId = /^\d+$/.test(rawVideoId) ? Number(rawVideoId) : Number.NaN;
 	if (!Number.isSafeInteger(finalVideoId) || finalVideoId < 1) {
 		throw new NodeOperationError(this.getNode(), 'Final Video ID must be a positive integer', {
 			itemIndex,

@@ -4,7 +4,7 @@ Build: `npm run build`; `npx tsc --noEmit`; `npm run lint`
 Run unit: `npm run build --silent && node --test --test-reporter=spec test/*.test.cjs`
 Plan: `.specs/features/node-cli-campos-v2/plan.md`
 
-32 checks in 4 slices · 4 one-way doors · 0 open
+39 checks in 4 slices · 4 one-way doors · 0 open
 
 ## Checks
 
@@ -93,9 +93,10 @@ Proof: run unit | ✔ socialAccountId vazio lança Social Account ID is required
 Proof: run unit | ✔ o node continua utilizável como tool de IA
 Proof: run unit | ✔ valor de expressão em texto puro também é aceito no finalVideoId
 
-**C27** - Chave inválida (código 4001) vira `NodeApiError` na v1 e nas duas listas da v2 (Surface 401)
+**C27** - Chave inválida vira `NodeApiError` na v1 e nas duas listas da v2, tanto pelo código 4001 no corpo quanto pelo HTTP 401 do transporte (Surface 401)
 Proof: run unit | ✔ v1 publishVideo com chave inválida lança NodeApiError
 Proof: run unit | ✔ as duas listas da v2 propagam a chave inválida como NodeApiError
+Proof: run unit | ✔ erro HTTP 401 do transporte vira NodeApiError na lista e na publicação (F6)
 
 ### S4 - lançamento 1.1.0 com estágio
 
@@ -113,6 +114,30 @@ Proof: run unit | ✔ o README segue o padrão completo do dono
 
 **C32** - A tag `v1.1.0` deixa a versão na fila Staged Packages e, aprovada, `npm view n8n-nodes-vizard version` devolve 1.1.0 (AC 4)
 Proof: walk - o dono aprova a versão na aba Staged Packages do npm depois da tag; nada disto roda no PR
+
+### S5 - achados do Verifier fechados
+
+**C33** - O `projectId` social não aparece na v1 (AC 3, F1)
+Proof: run unit | ✔ o projectId social não aparece na v1 (F1)
+
+**C34** - `finalVideoId` só aceita dígitos; `0x1F`, `1e3`, `1.5` e `-4` lançam `Final Video ID must be a positive integer` (AC 11, F2)
+Proof: run unit | ✔ finalVideoId só aceita dígitos: 0x1F e 1e3 são recusados (F2)
+
+**C35** - O corte do título de 60 caracteres não parte um emoji ao meio (AC 4, F3)
+Proof: run unit | ✔ o corte do título não deixa emoji pela metade (F3)
+
+**C36** - Duração nula ou zero não mostra o sufixo de segundos (AC 4, F4)
+Proof: run unit | ✔ duração nula ou zero não mostra o sufixo de segundos (F4)
+
+**C37** - Vídeo sem `videoId` é descartado da lista (AC 4, F5)
+Proof: run unit | ✔ vídeo sem videoId é descartado da lista (F5)
+
+**C38** - O `projectId` é codificado na rota `GET /query/{projectId}` da lista (AC 4, F7)
+Proof: run unit | ✔ o projectId é codificado na rota da lista (F7)
+
+**C39** - O CI exige os passos `run:` e o README exige o selo de apoio completo (AC 6 e S4 AC 3, F8)
+Proof: run unit | ✔ o workflow de CI roda ci, lint, test e build no Pull Request
+Proof: run unit | ✔ o README segue o padrão completo do dono
 
 ## Coverage
 
@@ -145,7 +170,7 @@ Proof: walk - o dono aprova a versão na aba Staged Packages do npm depois da ta
 ## Handoff
 
 - **Settled mid-build:** aprovação antecipada do dono, "Aprovo com antecedência (Recomendado · Jev 0,96)"
-- **Dispatched:** Verifier (haiku, fresh) at HEAD 51bbfc7
+- **Dispatched:** Verifier (haiku, fresh) at HEAD 51bbfc7 - returned (FAIL: F1, F2 médios; F3-F10 baixos; achados fechados no commit seguinte)
 - **Boundary:** none yet
 - **Abandoned:** none
 - **Walked:** n/a - sem tela nova; o editor do n8n mostra as listas

@@ -36,10 +36,12 @@ function videoItem(video: IDataObject): { name: string; value: string } {
 	const id = String(video.videoId);
 	// Sem título, o ID é o único rótulo confiável.
 	const title = String(video.title ?? '').trim();
-	const label = title ? title.slice(0, MAX_TITLE_LENGTH) : `Video ${id}`;
-	// A duração vem em milissegundos; mostramos em segundos inteiros.
+	// Array.from corta por caractere inteiro; slice cortaria um emoji ao meio (achado F3).
+	const label = title ? Array.from(title).slice(0, MAX_TITLE_LENGTH).join('') : `Video ${id}`;
+	// A duração vem em milissegundos; mostramos em segundos inteiros. Nula, zero ou
+	// ausente não mostra sufixo, para não anunciar "(0 s)" de um vídeo real (achado F4).
 	const duration = Number(video.videoMsDuration);
-	const suffix = Number.isFinite(duration) ? ` (${Math.round(duration / 1000)} s)` : '';
+	const suffix = duration > 0 ? ` (${Math.round(duration / 1000)} s)` : '';
 	return { name: `${label}${suffix}`, value: id };
 }
 
@@ -59,7 +61,9 @@ export async function searchVideos(
 		}),
 	);
 	const videos = Array.isArray(response.videos) ? (response.videos as IDataObject[]) : [];
-	return { results: filterByText(videos.map(videoItem), filter) };
+	// Item sem videoId não tem valor a escolher; descartar evita o valor "undefined" (achado F5).
+	const withId = videos.filter((video) => video.videoId !== undefined && video.videoId !== null);
+	return { results: filterByText(withId.map(videoItem), filter) };
 }
 
 export async function searchSocialAccounts(

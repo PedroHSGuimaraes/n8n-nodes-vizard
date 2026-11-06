@@ -351,3 +351,91 @@ describe('Chave inválida da Vizard (código 4001)', () => {
 		await assert.rejects(searchSocialAccounts.call(ctxContas), NodeApiError);
 	});
 });
+
+describe('Achados do Verifier fechados', () => {
+	const { searchVideos } = node.methods.listSearch;
+	const { NodeApiError } = require('n8n-workflow');
+
+	it('o projectId social não aparece na v1 (F1)', () => {
+		// Sem o gate @version o campo viraria obrigatório em workflows salvos.
+		const sociais = propriedades.filter(
+			(p) => p.name === 'projectId' && p.displayOptions?.show?.resource?.[0] === 'socialPublishing',
+		);
+		assert.ok(sociais.length > 0);
+		assert.ok(sociais.every((p) => !visivelNaVersao1(p)));
+	});
+
+	it('finalVideoId só aceita dígitos: 0x1F e 1e3 são recusados (F2)', async () => {
+		for (const valor of ['0x1F', '1e3', '1.5', '-4']) {
+			const ctx = contextoExecucao(
+				{ finalVideoId: { mode: 'id', value: valor }, aiSocialPlatform: 1, tone: 0, voice: 0 },
+				() => ({ code: 2000 }),
+			);
+			await assert.rejects(
+				executeSocialOperation.call(ctx, 'generateCaption', 0),
+				/Final Video ID must be a positive integer/,
+				valor,
+			);
+		}
+	});
+
+	it('o corte do título não deixa emoji pela metade (F3)', async () => {
+		const titulo = `${'a'.repeat(59)}😀😀`;
+		const ctx = contextoLista({ projectId: '1' }, () => ({
+			code: 2000,
+			videos: [{ videoId: 1, title: titulo, videoMsDuration: 2000 }],
+		}));
+		const [item] = (await searchVideos.call(ctx)).results;
+		assert.equal(item.name, `${'a'.repeat(59)}😀 (2 s)`);
+	});
+
+	it('duração nula ou zero não mostra o sufixo de segundos (F4)', async () => {
+		const ctx = contextoLista({ projectId: '1' }, () => ({
+			code: 2000,
+			videos: [
+				{ videoId: 1, title: 'Nulo', videoMsDuration: null },
+				{ videoId: 2, title: 'Zero', videoMsDuration: 0 },
+			],
+		}));
+		assert.deepEqual((await searchVideos.call(ctx)).results, [
+			{ name: 'Nulo', value: '1' },
+			{ name: 'Zero', value: '2' },
+		]);
+	});
+
+	it('vídeo sem videoId é descartado da lista (F5)', async () => {
+		const ctx = contextoLista({ projectId: '1' }, () => ({
+			code: 2000,
+			videos: [
+				{ title: 'Sem id', videoMsDuration: 1000 },
+				{ videoId: 7, title: 'Com id' },
+			],
+		}));
+		assert.deepEqual((await searchVideos.call(ctx)).results, [{ name: 'Com id', value: '7' }]);
+	});
+
+	it('erro HTTP 401 do transporte vira NodeApiError na lista e na publicação (F6)', async () => {
+		const falha = () => {
+			throw Object.assign(new Error('Unauthorized'), { httpCode: '401' });
+		};
+		await assert.rejects(searchVideos.call(contextoLista({ projectId: '1' }, falha)), NodeApiError);
+		const ctx = contextoExecucao(
+			{
+				finalVideoId: { mode: 'id', value: '14015572' },
+				socialAccountId: { mode: 'id', value: '1' },
+			},
+			falha,
+		);
+		await assert.rejects(executeSocialOperation.call(ctx, 'publishVideo', 0), NodeApiError);
+	});
+
+	it('o projectId é codificado na rota da lista (F7)', async () => {
+		let requisicao;
+		const ctx = contextoLista({ projectId: 'a/b?x=1' }, (o) => {
+			requisicao = o;
+			return { code: 2000 };
+		});
+		await searchVideos.call(ctx);
+		assert.equal(requisicao.url, '/query/a%2Fb%3Fx%3D1');
+	});
+});

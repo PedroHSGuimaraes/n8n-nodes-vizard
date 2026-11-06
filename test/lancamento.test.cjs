@@ -47,7 +47,10 @@ describe('Lançamento 1.1.0 com estágio no npm', () => {
 
 	it('o README segue o padrão completo do dono', () => {
 		const readme = ler('README.md');
-		assert.match(readme, /buymeacoffee\.com\/qTny0AzFXS/);
+		assert.match(
+			readme,
+			/\[!\[Apoie no Buy Me a Coffee\]\(.*\)\]\(https:\/\/buymeacoffee\.com\/qTny0AzFXS\)/,
+		);
 		for (const secao of [
 			'Funcionalidades',
 			'Instalação',

@@ -58,7 +58,7 @@ describe('Toolchain do node-cli 0.55.5', () => {
 		const ci = ler('.github', 'workflows', 'ci.yml');
 		assert.match(ci, /pull_request:/);
 		for (const comando of ['npm ci', 'npm run lint', 'npm test', 'npm run build']) {
-			assert.ok(ci.includes(comando), `ci.yml sem ${comando}`);
+			assert.ok(ci.includes(`run: ${comando}`), `ci.yml sem o passo run: ${comando}`);
 		}
 	});
 });
