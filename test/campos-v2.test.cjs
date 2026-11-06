@@ -101,7 +101,11 @@ describe('Versão 1 continua igual à 1.0.0', () => {
 		const naV1 = [
 			...new Set(propriedades.filter(visivelNaVersao1).map((p) => `${p.name}:${p.type}`)),
 		];
-		assert.deepEqual(naV1.sort(), parametrosDaVersao1);
+		// Desde a 1.2.0 as operações novas também aparecem na v1 (aditivo): todo parâmetro da
+		// 1.0.0 continua lá com o mesmo name e type; só pode haver parâmetros a mais.
+		for (const esperado of parametrosDaVersao1) {
+			assert.ok(naV1.includes(esperado), `${esperado} sumiu da v1`);
+		}
 	});
 
 	it('v1 recusa finalVideoId 0 com a mensagem da 1.0.0', async () => {

@@ -9,6 +9,17 @@
 import type { IExecuteFunctions } from 'n8n-workflow';
 
 /**
+ * Extrai o ID de um valor que pode ser Resource Locator ({ mode, value }), texto ou número.
+ * Existe separado de getIdParameter porque a linha de uma coleção não é um parâmetro do n8n:
+ * o valor chega pronto, sem passar por getNodeParameter.
+ */
+export function readLocatorValue(raw: unknown): string {
+	// Resource Locator guarda o ID em "value"; os demais formatos já são o ID.
+	const value = raw !== null && typeof raw === 'object' && 'value' in raw ? raw.value : raw;
+	return String(value ?? '').trim();
+}
+
+/**
  * Devolve o ID do parâmetro como texto sem espaços nas pontas.
  * Aceita três formas: objeto { mode, value } (v2), texto ou número (v1, ou
  * expressão já resolvida por um AI Agent). Valor ausente vira texto vazio.
@@ -20,7 +31,5 @@ export function getIdParameter(
 ): string {
 	// O terceiro argumento evita erro quando o parâmetro não existe no item.
 	const raw = context.getNodeParameter(name, itemIndex, '') as unknown;
-	// Resource Locator guarda o ID em "value"; os demais formatos já são o ID.
-	const value = raw !== null && typeof raw === 'object' && 'value' in raw ? raw.value : raw;
-	return String(value ?? '').trim();
+	return readLocatorValue(raw);
 }

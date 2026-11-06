@@ -31,7 +31,7 @@ Proof: run unit | ✔ publishToMultipleAccounts recusa post vazio
 **C7** - `videoUrl` ftp lança `Video URL must be an absolute HTTP or HTTPS URL` sem requisição (AC 6)
 Proof: run unit | ✔ publishToMultipleAccounts recusa videoUrl que não é http nem https
 
-**C8** - O código 4011 vira `NodeApiError` `Vizard API error 4011` (AC 7)
+**C8** - O código 4011 vira `NodeApiError` com a descrição `The social account ID is invalid.` (AC 7)
 Proof: run unit | ✔ publishToMultipleAccounts transforma o código 4011 em NodeApiError
 
 **C9** - `socialAccounts` é `fixedCollection` com Resource Locator `list` e `id`, e a operação avisa que publica em todas as contas (AC 8)
@@ -99,7 +99,7 @@ Proof: run unit | ✔ o node continua usableAsTool
 **C27** - Lint com 0 erros (AC 5)
 Proof: `npm run lint`
 
-**C28** - As três rotas novas transformam a resposta `4001` em `NodeApiError` (AC 1 de S1, S2 e S3)
+**C28** - As três rotas novas transformam a resposta `4001` em `NodeApiError` com a descrição `Invalid API key.` (AC 1 de S1, S2 e S3)
 Proof: run unit | ✔ as três operações novas transformam o código 4001 em NodeApiError
 
 ## Coverage

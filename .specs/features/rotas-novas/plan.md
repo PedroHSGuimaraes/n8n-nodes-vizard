@@ -80,7 +80,7 @@ Uma operação nova envia o mesmo vídeo para todas as contas escolhidas.
 4. IF um ID de conta contém vírgula THEN o sistema SHALL lançar `NodeOperationError` com a mensagem `Social account IDs cannot contain commas` sem fazer requisição
 5. IF `post` está vazio THEN o sistema SHALL lançar `NodeOperationError` com a mensagem `Post is required` sem fazer requisição
 6. IF `videoUrl` é uma URL com protocolo ftp THEN o sistema SHALL lançar `NodeOperationError` com a mensagem `Video URL must be an absolute HTTP or HTTPS URL` sem fazer requisição
-7. IF a Vizard responde `{ "code": 4011 }` THEN o sistema SHALL lançar `NodeApiError` com a mensagem `Vizard API error 4011`
+7. IF a Vizard responde `{ "code": 4011 }` THEN o sistema SHALL lançar `NodeApiError` com a descrição `The social account ID is invalid.`
 8. The node SHALL expor `socialAccounts` como `fixedCollection` com `multipleValues`, cuja opção `accounts` traz `accountId` como `resourceLocator` com os modos `list` (padrão, `searchListMethod: 'searchSocialAccounts'`) e `id`, e a descrição da operação SHALL avisar que publica em todas as contas escolhidas
 
 ### S2: consultar o resultado da publicação (P1)

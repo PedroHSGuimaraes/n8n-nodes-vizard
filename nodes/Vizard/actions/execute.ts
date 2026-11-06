@@ -1,8 +1,8 @@
 import type { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 
-import { getIdParameter } from '../helpers/resourceLocator';
-import { vizardApiRequest } from '../transport';
+import { getIdParameter, readLocatorValue } from '../helpers/resourceLocator';
+import { VIZARD_ROUTE_TIMEOUT_MS, vizardApiRequest } from '../transport';
 
 const switchFields = [
 	'autoBrollSwitch',
@@ -44,7 +44,15 @@ function videoUrl(context: IExecuteFunctions, itemIndex: number): string {
 }
 
 function appendAdditionalFields(body: IDataObject, additionalFields: IDataObject): void {
-	for (const name of ['keywords', 'maxClipNumber', 'projectName', 'ratioOfClip', 'templateId']) {
+	// clipModel só existe em Create Clips; ausente, a Vizard usa clip_v1 sozinha.
+	for (const name of [
+		'keywords',
+		'maxClipNumber',
+		'projectName',
+		'ratioOfClip',
+		'templateId',
+		'clipModel',
+	]) {
 		if (!hasOwn(additionalFields, name)) continue;
 		const value = additionalFields[name];
 		if (value !== '') body[name] = value;
@@ -113,6 +121,21 @@ export async function executeVideoOperation(
 			allowedCodes: [1000, 2000],
 		});
 	}
+	if (operation === 'deleteProject') {
+		// Apagar é irreversível: sem a confirmação ligada, nada sai do node (nem a leitura do ID).
+		// O padrão false cobre o caso do parâmetro ausente, como em workflows montados à mão.
+		if (this.getNodeParameter('confirmDelete', itemIndex, false) !== true) {
+			throw new NodeOperationError(
+				this.getNode(),
+				'Confirm Delete must be enabled to delete a project',
+				{ itemIndex },
+			);
+		}
+		const projectId = requiredText(this, 'projectId', itemIndex, 'Project ID');
+		return await vizardApiRequest.call(this, 'DELETE', `/delete/${encodeURIComponent(projectId)}`, {
+			timeout: VIZARD_ROUTE_TIMEOUT_MS,
+		});
+	}
 	throw new NodeOperationError(this.getNode(), `Unsupported video operation: ${operation}`, {
 		itemIndex,
 	});
@@ -131,6 +154,53 @@ function scheduledPublishTime(
 	});
 }
 
+// Lê as contas da coleção "Social Accounts" e devolve os IDs prontos para o corpo do batch:
+// sem espaço nas pontas, sem repetição (a ordem da primeira aparição fica) e sem vírgula,
+// porque a vírgula é o separador que a Vizard recebe (a doc só diz "string", sem exemplo).
+function batchAccountIds(context: IExecuteFunctions, itemIndex: number): string {
+	const collection = context.getNodeParameter('socialAccounts', itemIndex, {}) as IDataObject;
+	const rows = Array.isArray(collection?.accounts) ? (collection.accounts as IDataObject[]) : [];
+	const ids = new Set<string>();
+	for (const row of rows) {
+		const id = readLocatorValue(row.accountId);
+		// Linha vazia (conta ainda não escolhida) é ignorada; se sobrar nada, o erro abaixo avisa.
+		if (!id) continue;
+		if (id.includes(',')) {
+			throw new NodeOperationError(context.getNode(), 'Social account IDs cannot contain commas', {
+				itemIndex,
+			});
+		}
+		ids.add(id);
+	}
+	if (!ids.size) {
+		throw new NodeOperationError(context.getNode(), 'Select at least one social account', {
+			itemIndex,
+		});
+	}
+	return Array.from(ids).join(',');
+}
+
+// Publica um vídeo em várias contas (POST /batch-publish-video). Valida tudo antes da requisição.
+async function publishToMultipleAccounts(
+	context: IExecuteFunctions,
+	itemIndex: number,
+): Promise<unknown> {
+	const body: IDataObject = {
+		socialAccountIds: batchAccountIds(context, itemIndex),
+		videoUrl: videoUrl(context, itemIndex),
+		post: requiredText(context, 'post', itemIndex, 'Post'),
+	};
+	const options = context.getNodeParameter('batchPublishingOptions', itemIndex, {}) as IDataObject;
+	// Título (só YouTube) vazio não é enviado: a Vizard trata ausente e vazio de forma diferente.
+	if (hasOwn(options, 'title') && options.title !== '') body.title = options.title;
+	const publishTime = scheduledPublishTime(context, options.publishTime, itemIndex);
+	if (publishTime !== undefined) body.publishTime = publishTime;
+	return await vizardApiRequest.call(context, 'POST', '/batch-publish-video', {
+		body,
+		timeout: VIZARD_ROUTE_TIMEOUT_MS,
+	});
+}
+
 export async function executeSocialOperation(
 	this: IExecuteFunctions,
 	operation: string,
@@ -138,6 +208,20 @@ export async function executeSocialOperation(
 ): Promise<unknown> {
 	if (operation === 'getSocialAccounts') {
 		return await vizardApiRequest.call(this, 'GET', '/social-accounts');
+	}
+
+	// As duas operações novas não usam finalVideoId; saem antes da checagem dele, abaixo.
+	if (operation === 'publishToMultipleAccounts') {
+		return await publishToMultipleAccounts(this, itemIndex);
+	}
+	if (operation === 'getPublishResult') {
+		const customVideoId = requiredText(this, 'customVideoId', itemIndex, 'Custom Video ID');
+		return await vizardApiRequest.call(
+			this,
+			'GET',
+			`/publish-result/${encodeURIComponent(customVideoId)}`,
+			{ timeout: VIZARD_ROUTE_TIMEOUT_MS },
+		);
 	}
 
 	// Na v1 o ID é número; na v2 vem do Resource Locator. A leitura única devolve texto,

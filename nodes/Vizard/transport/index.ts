@@ -16,6 +16,10 @@ type VizardContext = IExecuteFunctions | ILoadOptionsFunctions;
 // 30 s bastam e evitam travar a tela (as submissões de vídeo seguem em 180 s).
 export const VIZARD_LIST_TIMEOUT_MS = 30000;
 
+// Limite de espera das rotas rápidas (publicar em várias contas, ler resultado, apagar):
+// não processam vídeo, só registram ou consultam; 30 s evita travar o workflow sem motivo.
+export const VIZARD_ROUTE_TIMEOUT_MS = 30000;
+
 export const VIZARD_API_BASE_URL =
 	'https://elb-api.vizard.ai/hvizard-server-front/open-api/v1/project';
 

@@ -143,7 +143,9 @@ describe('Publicação em várias contas', () => {
 		const context = executionContext(batchParameters(), () => ({ code: 4011 }));
 		await assert.rejects(
 			executeSocialOperation.call(context, 'publishToMultipleAccounts', 0),
-			(error) => error.name === 'NodeApiError' && /Vizard API error 4011/.test(error.message),
+			// O n8n troca a mensagem de um NodeApiError com código 4xxx; o texto da Vizard fica na descrição.
+			(error) =>
+				error.name === 'NodeApiError' && error.description === 'The social account ID is invalid.',
 		);
 	});
 
@@ -163,7 +165,9 @@ describe('Publicação em várias contas', () => {
 
 		// A descrição da operação avisa que a publicação vai para todas as contas escolhidas.
 		const operation = actionProperties
-			.find((p) => p.name === 'operation' && p.displayOptions.show.resource[0] === 'socialPublishing')
+			.find(
+				(p) => p.name === 'operation' && p.displayOptions.show.resource[0] === 'socialPublishing',
+			)
 			.options.find((option) => option.value === 'publishToMultipleAccounts');
 		assert.match(operation.description, /every selected account/i);
 	});
@@ -214,7 +218,12 @@ describe('Apagar projeto', () => {
 	it('deleteProject devolve success true quando a resposta vem vazia', async () => {
 		// Passa pelo execute do node: é ele que transforma resposta vazia em { success: true }.
 		const context = executionContext(
-			{ resource: 'videoProject', operation: 'deleteProject', projectId: '17861706', confirmDelete: true },
+			{
+				resource: 'videoProject',
+				operation: 'deleteProject',
+				projectId: '17861706',
+				confirmDelete: true,
+			},
 			() => '',
 		);
 		const [items] = await new Vizard().execute.call(context);
@@ -330,7 +339,7 @@ describe('Erros da Vizard nas rotas novas', () => {
 			const run = kind === 'social' ? executeSocialOperation : executeVideoOperation;
 			await assert.rejects(
 				run.call(context, operation, 0),
-				(error) => error.name === 'NodeApiError' && /Vizard API error 4001/.test(error.message),
+				(error) => error.name === 'NodeApiError' && error.description === 'Invalid API key.',
 			);
 		}
 	});
